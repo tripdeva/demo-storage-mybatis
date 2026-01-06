@@ -1,0 +1,49 @@
+plugins {
+    id 'java-library'
+    id 'org.springframework.boot' version '4.0.1' apply false
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'kr.co.demo'
+version = '0.0.1'
+description = 'demo-storage-mybatis'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.boot:spring-boot-dependencies:4.0.1"
+    }
+}
+
+dependencies {
+    implementation project(':demo-core')
+
+    // MyBatis Spring Boot Starter
+    api 'org.mybatis.spring.boot:mybatis-spring-boot-starter:4.0.1'
+
+    // Spring Boot Configuration Processor
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // ==================== Test ====================
+
+    // Storage MyBatis Processor (BaseMapper 자동 생성)
+    testAnnotationProcessor project(':demo-storage-mybatis-processor')
+
+    testImplementation project(':demo-core')
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'com.h2database:h2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
