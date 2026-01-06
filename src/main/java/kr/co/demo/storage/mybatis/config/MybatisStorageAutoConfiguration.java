@@ -1,4 +1,4 @@
-package kr.co.demo.config;
+package kr.co.demo.storage.mybatis.config;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

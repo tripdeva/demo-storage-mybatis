@@ -1,1 +1,1 @@
-kr.co.demo.config.MybatisStorageAutoConfiguration
+kr.co.demo.storage.mybatis.config.MybatisStorageAutoConfiguration
