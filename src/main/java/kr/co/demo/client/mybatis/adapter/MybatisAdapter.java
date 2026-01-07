@@ -1,4 +1,4 @@
-package kr.co.demo.storage.mybatis.adapter;
+package kr.co.demo.client.mybatis.adapter;
 
 import kr.co.demo.core.exception.StorageException;
 import org.springframework.dao.DataAccessException;

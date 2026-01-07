@@ -36,6 +36,9 @@ dependencies {
     // ==================== Test ====================
 
     // Storage MyBatis Processor (BaseMapper 자동 생성)
+    annotationProcessor project(':demo-storage-mybatis-processor')
+    compileOnly project(':demo-storage-mybatis-processor')
+
     testAnnotationProcessor project(':demo-storage-mybatis-processor')
 
     testImplementation project(':demo-core')
