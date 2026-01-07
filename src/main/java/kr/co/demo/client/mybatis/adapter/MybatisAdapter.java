@@ -67,43 +67,43 @@ public abstract class MybatisAdapter<D, ID, M> {
 
     /**
      * ID로 도메인 객체를 조회합니다.
-     * <p>서브클래스에서 BaseMapper의 findById를 호출해야 합니다.
+     * <p>서브클래스에서 BaseMapper 의 findById를 호출해야 합니다.
      */
     protected abstract D doFindById(ID id);
 
     /**
      * 전체 도메인 객체를 조회합니다.
-     * <p>서브클래스에서 BaseMapper의 findAll을 호출해야 합니다.
+     * <p>서브클래스에서 BaseMapper 의 findAll 을 호출해야 합니다.
      */
     protected abstract List<D> doFindAll();
 
     /**
      * 도메인 객체를 삽입합니다.
-     * <p>서브클래스에서 BaseMapper의 insert를 호출해야 합니다.
+     * <p>서브클래스에서 BaseMapper 의 insert 를 호출해야 합니다.
      */
     protected abstract int doInsert(D domain);
 
     /**
      * 도메인 객체를 수정합니다.
-     * <p>서브클래스에서 BaseMapper의 update를 호출해야 합니다.
+     * <p>서브클래스에서 BaseMapper 의 update 를 호출해야 합니다.
      */
     protected abstract int doUpdate(D domain);
 
     /**
      * ID로 도메인 객체를 삭제합니다.
-     * <p>서브클래스에서 BaseMapper의 deleteById를 호출해야 합니다.
+     * <p>서브클래스에서 BaseMapper 의 deleteById 를 호출해야 합니다.
      */
     protected abstract int doDeleteById(ID id);
 
     /**
      * 전체 개수를 조회합니다.
-     * <p>서브클래스에서 BaseMapper의 count를 호출해야 합니다.
+     * <p>서브클래스에서 BaseMapper 의 count 를 호출해야 합니다.
      */
     protected abstract long doCount();
 
     /**
      * ID로 존재 여부를 확인합니다.
-     * <p>서브클래스에서 BaseMapper의 existsById를 호출해야 합니다.
+     * <p>서브클래스에서 BaseMapper 의 existsById 를 호출해야 합니다.
      */
     protected abstract boolean doExistsById(ID id);
 
@@ -129,7 +129,7 @@ public abstract class MybatisAdapter<D, ID, M> {
      *
      * @param id 조회할 ID
      * @return 도메인 객체
-     * @throws StorageException Entity가 없는 경우
+     * @throws StorageException Entity 가 없는 경우
      */
     protected D findByIdOrThrow(ID id) {
         return findByIdWithException(id)
