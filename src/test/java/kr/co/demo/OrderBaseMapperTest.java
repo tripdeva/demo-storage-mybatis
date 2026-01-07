@@ -71,10 +71,7 @@ class OrderBaseMapperTest {
         order.setStatus(OrderStatus.CONFIRMED);
         order.setTotalAmount(new BigDecimal("15000"));
 
-        Order order1 = createOrder("", "", null, null);
-        order1.setId(order.getId());
-
-        int result = orderBaseMapper.patch(order1);
+        int result = orderBaseMapper.patch(order);
 
         // then
         assertThat(result).isEqualTo(1);
