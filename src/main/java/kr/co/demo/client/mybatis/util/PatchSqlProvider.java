@@ -18,57 +18,56 @@ public class PatchSqlProvider {
     /**
      * UPDATE 쿼리 생성 메서드
      *
-     * @param domain 쿼리의 주체가 되는 도메인 객체
+     * @param patch
      * @return
      */
-    public static String build(Object domain) {
-        Class<?> type = domain.getClass();
+    public static String build(Patch<?> patch) {
+        Class<?> type = patch.domainType();
 
         String table = resolveTable(type);
         Field idField = resolveIdField(type);
-        String idColumn = resolveColumn(idField);
-
-        StringBuilder sql = new StringBuilder();
-        sql.append("UPDATE ").append(table).append(" SET ");
 
         List<String> sets = new ArrayList<>();
 
-        for (Field field : type.getDeclaredFields()) {
-            field.setAccessible(true);
+        for (PatchValue<?> pv : patch.values()) {
+            Field field = resolveField(type, pv.fieldName());
+            StorageColumn column = field.getAnnotation(StorageColumn.class);
 
-            if (isId(field)) continue;
+            if (field.isAnnotationPresent(StorageId.class)) continue;
 
-            // 컬럼 값
-            Object value;
-            try {
-                // 필드값을 가져와 value 에 넣어줌
-                value = field.get(domain);
-            } catch (IllegalAccessException e) {
-                continue;
+            boolean nullable = column == null || column.nullable();
+            String columnName = resolveColumn(field);
+
+            if (pv.isNull() && !nullable) {
+                throw new IllegalStateException(
+                        "컬럼 '" + columnName + "' 은 nullable=false 이므로 NULL 로 업데이트할 수 없습니다"
+                );
             }
 
-            // 값이 있을 때만 set 문 생성
-            if (value != null && !value.equals("")) {
-                sets.add(resolveColumn(field) + " = #{" + field.getName() + "}");
+            if (pv.isNull()) {
+                sets.add(columnName + " = NULL");
+            } else {
+                sets.add(columnName + " = #{values[" +
+                        patch.values().indexOf(pv) + "].value}");
             }
         }
 
-        // set 문이 없으면 Exception 처리
         if (sets.isEmpty()) {
             throw new IllegalStateException("PATCH 대상 필드 없음");
         }
 
-        sql.append(String.join(", ", sets));
-        sql.append(" WHERE ")
-                .append(idColumn)
-                .append(" = #{")
-                .append(resolveIdField(type).getName())
-                .append("}");
+        System.out.println(
+                "UPDATE " + table +
+                        " SET " + String.join(", ", sets) +
+                        " WHERE " + idField.getName() + " = #{id}"
+        );
 
-        System.out.println(sql);
-
-        return sql.toString();
+        return "UPDATE " + table +
+                " SET " + String.join(", ", sets) +
+                " WHERE " + idField.getName() + " = #{id}";
     }
+
+    // ----------------- resolve helpers -----------------
 
     private static String resolveTable(Class<?> type) {
         StorageTable table = type.getAnnotation(StorageTable.class);
@@ -79,36 +78,31 @@ public class PatchSqlProvider {
     }
 
     private static Field resolveIdField(Class<?> type) {
-        for (Field field : type.getDeclaredFields()) {
-            if (field.isAnnotationPresent(StorageId.class)) {
-                field.setAccessible(true);
-                return field;
+        for (Field f : type.getDeclaredFields()) {
+            if (f.isAnnotationPresent(StorageId.class)) {
+                f.setAccessible(true);
+                return f;
             }
         }
-        throw new IllegalStateException("@StorageId 없음: " + type.getName());
+        throw new IllegalStateException("@StorageId 필드 없음");
     }
 
-    private static boolean isId(Field field) {
-        return field.isAnnotationPresent(StorageId.class);
-    }
-
-    private static String toColumn(String fieldName) {
-        StringBuilder sb = new StringBuilder();
-        for (char c : fieldName.toCharArray()) {
-            if (Character.isUpperCase(c)) {
-                sb.append('_').append(Character.toLowerCase(c));
-            } else {
-                sb.append(c);
-            }
+    private static Field resolveField(Class<?> type, String name) {
+        try {
+            Field f = type.getDeclaredField(name);
+            f.setAccessible(true);
+            return f;
+        } catch (NoSuchFieldException e) {
+            throw new IllegalStateException("존재하지 않는 필드: " + name);
         }
-        return sb.toString();
     }
 
     private static String resolveColumn(Field field) {
         StorageColumn column = field.getAnnotation(StorageColumn.class);
-        if (column != null && !column.value().isBlank()) {
-            return column.value();
-        }
-        return toColumn(field.getName());
+        return column == null || column.value().equals("") ? camelToSnake(field.getName()) : column.value();
+    }
+
+    private static String camelToSnake(String s) {
+        return s.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase();
     }
 }

@@ -1,5 +1,7 @@
 package kr.co.demo;
 
+import kr.co.demo.client.mybatis.util.Patch;
+import kr.co.demo.client.mybatis.util.PatchValue;
 import kr.co.demo.domain.Order;
 import kr.co.demo.domain.OrderStatus;
 import kr.co.demo.domain.mapper.OrderBaseMapper;
@@ -81,6 +83,32 @@ class OrderBaseMapperTest {
         assertThat(updated.getTotalAmount()).isEqualByComparingTo(new BigDecimal("15000"));
 
         System.out.println("✅ update 성공!");
+    }
+
+    @Test
+    void testPatch() {
+        // given
+        Order order = createOrder("ORD-001", "홍길동", OrderStatus.PENDING, new BigDecimal("10000"));
+        orderBaseMapper.insert(order);
+
+        Patch<Order> patch = Patch.create(
+                Order.class,
+                order.getId(),
+                PatchValue.of("orderNumber", "TEST"),
+                PatchValue.of("customerName", "TEST"),
+                PatchValue.of("orderedAt", null)
+        );
+
+        int result = orderBaseMapper.patch(patch);
+
+        // then
+        assertThat(result).isEqualTo(1);
+
+        Order updated = orderBaseMapper.findById(order.getId());
+        assertThat(updated.getOrderNumber()).isEqualTo("TEST");
+        assertThat(updated.getCustomerName()).isEqualTo("TEST");
+
+        System.out.println("✅ patch 성공!");
     }
 
     @Test
