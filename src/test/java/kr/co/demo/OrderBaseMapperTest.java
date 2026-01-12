@@ -112,6 +112,26 @@ class OrderBaseMapperTest {
     }
 
     @Test
+    void testUpsert() {
+        // given
+        Order order = createOrder("ORD-001", "홍길동", OrderStatus.PENDING, new BigDecimal("10000"));
+        orderBaseMapper.insert(order);
+
+        Order order2 = orderBaseMapper.findById(order.getId());
+        order2.setCustomerName("TEST");
+
+        int result = orderBaseMapper.save(order2);
+
+        // then
+        assertThat(result).isEqualTo(1);
+
+        Order updated = orderBaseMapper.findById(order.getId());
+        assertThat(updated.getCustomerName()).isEqualTo("TEST");
+
+        System.out.println("✅ upsert 성공!");
+    }
+
+    @Test
     void testDeleteById() {
         // given
         Order order = createOrder("ORD-001", "홍길동", OrderStatus.PENDING, new BigDecimal("10000"));
