@@ -3,6 +3,8 @@ package kr.co.demo.client.mybatis.util;
 import kr.co.demo.core.storage.annotation.StorageColumn;
 import kr.co.demo.core.storage.annotation.StorageId;
 import kr.co.demo.core.storage.annotation.StorageTable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -14,6 +16,8 @@ import java.util.List;
  * - 값이 있는 컬럼만 Set 생성
  */
 public class PatchSqlProvider {
+
+    private static final Logger log = LoggerFactory.getLogger(PatchSqlProvider.class);
 
     /**
      * UPDATE 쿼리 생성 메서드
@@ -56,11 +60,10 @@ public class PatchSqlProvider {
             throw new IllegalStateException("PATCH 대상 필드 없음");
         }
 
-        System.out.println(
-                "UPDATE " + table +
-                        " SET " + String.join(", ", sets) +
-                        " WHERE " + idField.getName() + " = #{id}"
-        );
+        String sql = "UPDATE " + table +
+                " SET " + String.join(", ", sets) +
+                " WHERE " + idField.getName() + " = #{id}";
+        log.debug(sql);
 
         return "UPDATE " + table +
                 " SET " + String.join(", ", sets) +
